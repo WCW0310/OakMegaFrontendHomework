@@ -79,7 +79,7 @@ export function MapView({
   });
 
   return (
-    <div className="relative w-full h-1/2 md:h-full md:w-2/3 z-10">
+    <div className="relative w-full flex-1 md:h-full md:w-2/3 z-10">
       <MapContainer
         center={defaultCenter}
         zoom={13}
@@ -140,17 +140,6 @@ export function MapView({
                         f
                       </span>
                     </div>
-                  )}
-                </div>
-
-                <div className="mt-2 text-center">
-                  <p className="text-sm font-bold text-gray-800">
-                    {user.google?.name}
-                  </p>
-                  {user.facebook && (
-                    <p className="text-[10px] text-blue-600 font-medium">
-                      已成功綁定 Facebook
-                    </p>
                   )}
                 </div>
               </div>

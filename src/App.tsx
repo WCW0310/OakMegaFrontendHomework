@@ -126,7 +126,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col-reverse md:flex-row h-screen w-full">
+    <div className="flex flex-col-reverse md:flex-row min-h-screen md:h-screen w-full">
       {/* 下方列表 (手機) / 左側列表 (桌面) */}
       <Sidebar
         user={user}
