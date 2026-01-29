@@ -26,6 +26,20 @@ function App() {
   // --- A. 自定義 Hook ---
   const { user, handleFBLogin, handleLogout } = useSocialAuth();
 
+  // 設定 CSS 變數 --vh 以處理手機瀏覽器地址列導致的高度問題
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`,
+      );
+    };
+
+    setVh();
+    window.addEventListener("resize", setVh);
+    return () => window.removeEventListener("resize", setVh);
+  }, []);
+
   // --- B. 狀態管理 ---
   const [zones, setZones] = useState<RenewalZone[]>([]);
   const [nearbyStops, setNearbyStops] = useState<NearbyItem[]>([]);
@@ -126,7 +140,10 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col-reverse md:flex-row min-h-screen md:h-screen w-full">
+    <div
+      className="flex flex-col-reverse md:flex-row w-full overflow-hidden"
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+    >
       {/* 下方列表 (手機) / 左側列表 (桌面) */}
       <Sidebar
         user={user}

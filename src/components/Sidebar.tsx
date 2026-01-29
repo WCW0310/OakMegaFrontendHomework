@@ -29,7 +29,7 @@ export function Sidebar({
   );
 
   return (
-    <div className="w-full h-1/2 md:h-full md:w-1/3 bg-white shadow-xl flex flex-col z-20">
+    <div className="w-full h-1/2 md:h-full md:w-1/3 bg-white shadow-xl flex flex-col z-20 min-h-0 shrink-0">
       {/* 頂部 Header */}
       <div className="p-4 bg-blue-600 text-white shadow-md z-10">
         <div className="flex items-center justify-between mb-2">
