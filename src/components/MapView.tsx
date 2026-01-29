@@ -79,7 +79,7 @@ export function MapView({
   });
 
   return (
-    <div className="relative w-full flex-1 md:h-full md:w-2/3 z-10">
+    <div className="relative w-full h-1/2 md:h-full md:w-2/3 z-10">
       <MapContainer
         center={defaultCenter}
         zoom={13}
