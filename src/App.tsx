@@ -126,8 +126,8 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-full flex-col md:flex-row">
-      {/* 左側列表 */}
+    <div className="flex flex-col-reverse md:flex-row h-screen w-full">
+      {/* 下方列表 (手機) / 左側列表 (桌面) */}
       <Sidebar
         user={user}
         nearbyStops={nearbyStops}
@@ -138,7 +138,7 @@ function App() {
         onLogout={handleLogout}
       />
 
-      {/* 右側地圖 */}
+      {/* 上方地圖 (手機) / 右側地圖 (桌面) */}
       <MapView
         user={user}
         zones={zones}
