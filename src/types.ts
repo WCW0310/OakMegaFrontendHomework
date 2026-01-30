@@ -1,7 +1,8 @@
+import type { GeoJsonObject } from "geojson";
+
 export interface RenewalZone {
-  id: number; // 我們用 index 當作 id
-  boundary: [number, number][]; // 轉換後的 [Lat, Lng] 陣列
-  center: [number, number]; // 中心點
+  id: number;
+  geoJsonData: GeoJsonObject;
 }
 
 export interface UserProfile {
@@ -12,13 +13,7 @@ export interface UserProfile {
 // polygonsService
 export interface GeoJsonResponse {
   result: {
-    features: GeoJsonFeature[];
-  };
-}
-
-export interface GeoJsonFeature {
-  geometry: {
-    coordinates: number[][][]; // GeoJSON 座標陣列
+    features: GeoJsonObject[];
   };
 }
 

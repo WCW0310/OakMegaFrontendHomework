@@ -1,10 +1,10 @@
-import { useEffect, useRef, Fragment } from "react";
+import { useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
-  Polygon,
+  GeoJSON,
   useMap,
 } from "react-leaflet";
 import { Icon, Marker as LeafletMarker } from "leaflet";
@@ -149,16 +149,16 @@ export function MapView({
 
         {/* 2. 都更案區塊 (Polygons & Markers) */}
         {zones.map((zone) => (
-          <Fragment key={`zone-group-${zone.id}`}>
-            <Polygon
-              positions={zone.boundary}
-              pathOptions={{
-                color: "#3b82f6",
-                fillColor: "#93c5fd",
-                fillOpacity: 0.5,
-              }}
-            />
-          </Fragment>
+          <GeoJSON
+            key={`zone-geojson-${zone.id}`}
+            data={zone.geoJsonData}
+            style={{
+              color: "#3b82f6",
+              fillColor: "#93c5fd",
+              fillOpacity: 0.5,
+              weight: 2,
+            }}
+          />
         ))}
 
         {/* 3. 附近的 TOD 站點 */}
