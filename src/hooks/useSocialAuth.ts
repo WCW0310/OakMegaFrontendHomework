@@ -23,15 +23,9 @@ export function useSocialAuth() {
 
   // 2. Initialize Google Identity Services (GIS)
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-
-    script.onload = () => {
+    const initGoogle = () => {
       if (!window.google) return;
 
-      // Initialize the client
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: (response) => {
@@ -49,11 +43,9 @@ export function useSocialAuth() {
             return newUser;
           });
         },
-        // [Important] Enable FedCM to prevent browser blocking (Chrome/Edge)
         use_fedcm_for_prompt: true,
       });
 
-      // Render the button if the container exists
       if (googleBtnRef.current) {
         window.google.accounts.id.renderButton(googleBtnRef.current, {
           theme: "outline",
@@ -62,14 +54,32 @@ export function useSocialAuth() {
       }
     };
 
-    document.body.appendChild(script);
+    // Check if script already exists
+    const id = "google-jssdk";
+    const existingScript = document.getElementById(id);
 
-    // Cleanup script on unmount
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
+    if (existingScript) {
+      // If script exists, just initialize (or wait if it's still loading - though simplistic check here assumes loaded if exists, better is to check window.google)
+      if (window.google) {
+        initGoogle();
+      } else {
+        // Edge case: script tag exists but not loaded. 
+        // We can attach onload to existing script if we want to be safe, 
+        // but typically if it exists it likely loaded or is loading.
+        existingScript.addEventListener('load', initGoogle);
+        return () => existingScript.removeEventListener('load', initGoogle);
       }
-    };
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = id;
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = initGoogle;
+
+    document.body.appendChild(script);
   }, []);
 
   // 3. Initialize Facebook JavaScript SDK
@@ -80,17 +90,20 @@ export function useSocialAuth() {
         appId: FB_APP_ID,
         cookie: true,
         xfbml: true,
-        version: "v18.0",
+        version: "v24.0",
       });
     };
 
     // Load SDK script if not already present
     const id = "facebook-jssdk";
     if (!document.getElementById(id)) {
-      const js = document.createElement("script") as HTMLScriptElement;
-      js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      document.body.appendChild(js);
+      const script = document.createElement("script");
+      script.id = id;
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = "anonymous";
+      document.body.appendChild(script);
     }
   }, []);
 
