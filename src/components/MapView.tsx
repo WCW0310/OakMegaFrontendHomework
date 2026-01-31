@@ -9,6 +9,7 @@ import {
 } from "react-leaflet";
 import { Icon, Marker as LeafletMarker } from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 import type { RenewalZone, UserProfile, NearbyItem } from "../types";
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
   popupRefresh: number;
 }
 
+// Helper component for programmatic map navigation
 function ChangeView({
   center,
   zoom,
@@ -46,27 +48,34 @@ export function MapView({
   showUserLocationPopup,
   popupRefresh,
 }: Props) {
-  const defaultCenter: [number, number] = [25.0117, 121.4658];
+  // Default Center: Tucheng MRT (Fallback)
+  const defaultCenter: [number, number] = [24.9722, 121.4442];
 
-  // 用來存儲每個 Marker 的 ref，以便打開/關閉 Popup
+  // Strategy: Display Marker Position
+  // If user location is available, use it. Otherwise, use the default center as the "Reference Point".
+  const displayPosition = userLocation
+    ? { lat: userLocation.lat, lng: userLocation.lng }
+    : { lat: defaultCenter[0], lng: defaultCenter[1] };
+
+  // Leaflet Refs
   const markerRefs = useRef<Record<number, LeafletMarker>>({});
-  const userMarkerRef = useRef<LeafletMarker | null>(null); // 用戶位置 Marker 的 ref
+  const userMarkerRef = useRef<LeafletMarker | null>(null);
 
-  // 當 activeStop 改變時，打開對應的 Popup
+  // Effect: Handle Active Stop Popup (from Sidebar click)
   useEffect(() => {
     if (activeStop && markerRefs.current[activeStop.id]) {
       markerRefs.current[activeStop.id].openPopup();
     }
   }, [activeStop, popupRefresh]);
 
-  // 當 showUserLocationPopup 改變時，打開用戶位置的 Popup
+  // Effect: Handle User Location Popup (from "My Location" button)
   useEffect(() => {
     if (showUserLocationPopup && userMarkerRef.current) {
       userMarkerRef.current.openPopup();
     }
   }, [showUserLocationPopup, popupRefresh]);
 
-  // 紅色 Marker 圖標
+  // Asset: Red Marker Icon for User/Reference Location
   const redMarkerIcon = new Icon({
     iconUrl:
       "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
@@ -86,68 +95,81 @@ export function MapView({
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* 視角控制 */}
-        {activeStop ? (
-          <ChangeView
-            center={[activeStop.latitude, activeStop.longitude]}
-            zoom={16}
-          />
-        ) : userLocation ? (
-          <ChangeView center={[userLocation.lat, userLocation.lng]} zoom={16} />
-        ) : null}
+        {/* --- Map Controller --- */}
+        {/* Priority: Active Stop > Display Position (User or Default) */}
+        <ChangeView
+          center={
+            activeStop
+              ? [activeStop.latitude, activeStop.longitude]
+              : [displayPosition.lat, displayPosition.lng]
+          }
+          zoom={16}
+        />
 
-        {/* 1. 使用者位置：同時顯示 Google & FB 頭像 */}
-        {userLocation && (
-          <Marker
-            position={[userLocation.lat, userLocation.lng]}
-            icon={redMarkerIcon}
-            ref={(el) => {
-              if (el) userMarkerRef.current = el;
-            }}
-          >
-            <Popup>
-              <div className="flex flex-col items-center p-2 min-w-30">
-                <p className="text-xs font-bold text-gray-500 mb-2">
-                  當前使用者定位
-                </p>
+        {/* --- Layer 1: User / Reference Marker --- */}
+        <Marker
+          position={[displayPosition.lat, displayPosition.lng]}
+          icon={redMarkerIcon}
+          ref={(el) => {
+            if (el) userMarkerRef.current = el;
+          }}
+        >
+          <Popup>
+            <div className="flex flex-col items-center p-2 min-w-30">
+              {/* Dynamic Title */}
+              <p className="text-xs font-bold text-gray-500 mb-2">
+                {userLocation
+                  ? "Current User Location"
+                  : "Reference Point (Default)"}
+              </p>
 
-                <div className="flex gap-3 justify-center items-center">
-                  {/* Google 頭像 */}
+              {/* Avatars */}
+              <div className="flex gap-3 justify-center items-center">
+                <div className="relative">
+                  <img
+                    src={user.google?.picture}
+                    className="w-10 h-10 rounded-full border-2 border-white shadow-md"
+                    alt="Google User"
+                  />
+                  <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] shadow font-bold text-red-500">
+                    G
+                  </span>
+                </div>
+
+                {user.facebook && (
                   <div className="relative">
                     <img
-                      src={user.google?.picture}
-                      className="w-10 h-10 rounded-full border-2 border-white shadow-md"
-                      alt="Google User"
+                      src={user.facebook.picture}
+                      className="w-10 h-10 rounded-full border-2 border-blue-500 shadow-md"
+                      alt="FB User"
                     />
-                    <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] shadow font-bold text-red-500">
-                      G
+                    <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#1877F2] text-[10px] text-white shadow font-bold">
+                      f
                     </span>
                   </div>
-
-                  {/* Facebook 頭像 (綁定後顯示) */}
-                  {user.facebook && (
-                    <div className="relative">
-                      <img
-                        src={user.facebook.picture}
-                        className="w-10 h-10 rounded-full border-2 border-blue-500 shadow-md"
-                        alt="FB User"
-                      />
-                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#1877F2] text-[10px] text-white shadow font-bold">
-                        f
-                      </span>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
-            </Popup>
-          </Marker>
-        )}
 
-        {/* 2. 都更案區塊 (Polygons & Markers) */}
+              {/* User Info & Status */}
+              <div className="mt-2 text-center">
+                <p className="text-sm font-bold text-gray-800">
+                  {user.google?.name}
+                </p>
+                {!userLocation && (
+                  <p className="text-[10px] text-orange-500 mt-1">
+                    (Permission denied or pending)
+                  </p>
+                )}
+              </div>
+            </div>
+          </Popup>
+        </Marker>
+
+        {/* --- Layer 2: Renewal Zones (GeoJSON) --- */}
         {zones.map((zone) => (
           <GeoJSON
             key={`zone-geojson-${zone.id}`}
@@ -161,7 +183,7 @@ export function MapView({
           />
         ))}
 
-        {/* 3. 附近的 TOD 站點 */}
+        {/* --- Layer 3: Nearby Stops --- */}
         {nearbyStops.map((stop) => (
           <Marker
             key={`stop-${stop.id}`}

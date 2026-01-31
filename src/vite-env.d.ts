@@ -43,6 +43,7 @@ interface Window {
         initialize: (config: {
           client_id: string;
           callback: (response: GoogleCredentialResponse) => void;
+          use_fedcm_for_prompt: boolean;
         }) => void;
         renderButton: (
           parent: HTMLElement | null,
