@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { UserProfile } from "../types";
 import { parseJwt } from "../utils/jwt";
 
@@ -18,6 +18,8 @@ export function useSocialAuth() {
       return {};
     }
   });
+
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   // 2. Initialize Google Identity Services (GIS)
   useEffect(() => {
@@ -52,9 +54,8 @@ export function useSocialAuth() {
       });
 
       // Render the button if the container exists
-      const btnParent = document.getElementById("googleBtn");
-      if (btnParent) {
-        window.google.accounts.id.renderButton(btnParent, {
+      if (googleBtnRef.current) {
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
           theme: "outline",
           size: "large",
         });
@@ -134,5 +135,5 @@ export function useSocialAuth() {
     window.location.reload();
   };
 
-  return { user, handleFBLogin, handleLogout };
+  return { user, handleFBLogin, handleLogout, googleBtnRef };
 }
