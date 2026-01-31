@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
-
-// Hooks & Services
 import { useSocialAuth } from "./hooks/useSocialAuth";
 import { getPolygons } from "./services/polygonsService";
 import { getNearbyLocations } from "./services/nearbyLocationsService";
-
-// Types
-import type { RenewalZone, NearbyItem } from "./types";
-
-// Components
 import { LoginStep } from "./components/LoginStep";
 import { BindStep } from "./components/BindStep";
 import { Sidebar } from "./components/Sidebar";
 import { MapView } from "./components/MapView";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { fixLeafletIcon } from "./utils/leafletSetup";
+import type { RenewalZone, NearbyItem } from "./types";
+
+// 修正 Leaflet 圖示
+fixLeafletIcon();
 
 // Default fallback location (Tucheng MRT)
 const DEFAULT_LOCATION = {
