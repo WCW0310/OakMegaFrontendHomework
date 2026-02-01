@@ -17,16 +17,10 @@ describe("parseJwt", () => {
     });
   });
 
-  it("decodes token with special characters in payload", () => {
-    // Payload: {"name":"測試"} -> eyJuYW1lIjoi5ris6KmmIn0 (_ replaced / and - replaced + in url safe base64)
-    // Actually let's construct a simple base64url string manually to ensure test stability if we are unsure about exact base64 encoding of special chars in this context
-    // But standard JWT usually handles unicode via standard JSON stringify.
-    // Let's rely on a known good output or keep it simple. The function processes base64Url correctly.
-    // Let's trust the logic: base64Url -> base64 -> decodeURIComponent(escape(atob(...)))
-
-    // Manual construction of a "test" payload in base64url
-    // {"test":"value"} -> eyJ0ZXN0IjoidmFsdWUifQ
-    const token = "header.eyJ0ZXN0IjoidmFsdWUifQ.signature";
-    expect(parseJwt(token)).toEqual({ test: "value" });
+  it("decodes token with special characters (e.g. Chinese) in payload", () => {
+    // Payload: {"name":"測試"} -> eyJuYW1lIjoi5ris6KmmIn0
+    // Encode: btoa(unescape(encodeURIComponent('{"name":"測試"}'))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+    const token = "header.eyJuYW1lIjoi5ris6KmmIn0.signature";
+    expect(parseJwt(token)).toEqual({ name: "測試" });
   });
 });
