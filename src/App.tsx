@@ -10,7 +10,7 @@ import { LoadingScreen } from "./components/LoadingScreen";
 import { fixLeafletIcon } from "./utils/leafletSetup";
 import type { RenewalZone, NearbyItem } from "./types";
 
-// 修正 Leaflet 圖示
+// Fix Leaflet icons
 fixLeafletIcon();
 
 // Default fallback location (Tucheng MRT)

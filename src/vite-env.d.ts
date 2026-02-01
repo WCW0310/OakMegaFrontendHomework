@@ -1,15 +1,15 @@
 /// <reference types="vite/client" />
 
-// ⚠️ 注意：這裡不要寫 export，也不要寫 import，這樣才會變成全域宣告
+// Note: Do not use export or import here, otherwise it becomes a module instead of a global declaration
 
-// 1. 定義 Google 回傳的資料結構
+// 1. Define Google response structure
 interface GoogleCredentialResponse {
   credential: string;
   select_by?: string;
   clientId?: string;
 }
 
-// 2. 定義 FB 登入回傳的狀態
+// 2. Define FB login response status
 interface FbLoginResponse {
   status: "connected" | "not_authorized" | "unknown";
   authResponse: {
@@ -20,7 +20,7 @@ interface FbLoginResponse {
   } | null;
 }
 
-// 3. 定義 FB 使用者資料 (Graph API)
+// 3. Define FB user data (Graph API)
 interface FbUserInfoResponse {
   name: string;
   id: string;
@@ -34,7 +34,7 @@ interface FbUserInfoResponse {
   };
 }
 
-// 4. 擴充全域 Window 物件
+// 4. Extend Global Window Object
 interface Window {
   // Google SDK
   google: {
