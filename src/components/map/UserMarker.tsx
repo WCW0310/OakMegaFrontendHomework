@@ -51,9 +51,7 @@ export function UserMarker({
         <div className="flex flex-col items-center p-2 min-w-30">
           {/* Dynamic Title */}
           <p className="text-xs font-bold text-gray-500 mb-2">
-            {userLocation
-              ? "Current User Location"
-              : "Reference Point (Default)"}
+            {userLocation ? "您的目前位置" : "參考點 (預設)"}
           </p>
 
           {/* Avatars */}
@@ -90,7 +88,7 @@ export function UserMarker({
             </p>
             {!userLocation && (
               <p className="text-[10px] text-orange-500 mt-1">
-                (Permission denied or pending)
+                (未取得權限或確認中)
               </p>
             )}
           </div>

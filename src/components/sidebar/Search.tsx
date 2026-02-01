@@ -9,7 +9,7 @@ export function Search({ searchQuery, onSearchChange, onClear }: Props) {
     <div className="mt-3 relative">
       <input
         type="text"
-        placeholder="搜尋站點名稱..."
+        placeholder="搜尋地點名稱..."
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         className="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white pr-8"

@@ -12,7 +12,7 @@ export function Header({
   return (
     <div className="flex items-center justify-between mb-2">
       <h2 className="text-xl font-bold flex items-center gap-2">
-        🚇 附近 TOD 站點
+        附近的都更地點
       </h2>
 
       {/* Location Action Button */}

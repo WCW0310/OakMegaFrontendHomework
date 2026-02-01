@@ -21,11 +21,11 @@ export function StopList({
             // Loading State (Empty source usually means fetching)
             <div className="flex flex-col items-center gap-2">
               <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
-              <p>正在搜尋附近站點...</p>
+              <p>正在搜尋附近地點...</p>
             </div>
           ) : (
             // Empty Search Result
-            <p>找不到符合的站點</p>
+            <p>找不到符合的地點</p>
           )}
         </div>
       ) : (
@@ -53,7 +53,7 @@ export function StopList({
               <span className="flex items-center gap-1">
                 📏 距離:
                 <span className="font-mono text-green-700 font-semibold">
-                  {stop.distance.toFixed(2)} km
+                  {stop.distance} km
                 </span>
               </span>
             </div>

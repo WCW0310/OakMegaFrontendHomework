@@ -26,7 +26,7 @@ export function LocationStatus({ isLocationDenied, locationSource }: Props) {
         <span>
           距離計算基準：
           <span className="font-bold ml-1">
-            {locationSource === "user" ? "我的位置 (即時)" : "預設位置 (土城)"}
+            {locationSource === "user" ? "我的位置" : "預設位置 (土城)"}
           </span>
         </span>
       </div>

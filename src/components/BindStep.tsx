@@ -18,13 +18,13 @@ export function BindStep({ user, onFBLogin }: Props) {
           className="mx-auto mb-4 h-20 w-20 rounded-full border-4 border-white shadow-sm"
         />
         <p className="mb-6 text-red-500 font-bold bg-red-50 p-3 rounded-lg">
-          ⚠️ 依規定，需綁定 Facebook 帳號才能查看地圖資料
+          ⚠️ 需綁定 Facebook 帳號才能查看地圖資料
         </p>
         <button
           onClick={onFBLogin}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1877F2] py-3 text-white hover:bg-[#166fe5] font-bold transition-colors cursor-pointer"
         >
-          <span className="text-xl font-bold">f</span> 連結 Facebook 帳號
+          綁定 Facebook 帳號
         </button>
       </div>
     </div>
