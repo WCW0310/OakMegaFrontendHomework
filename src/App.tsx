@@ -199,6 +199,7 @@ function App() {
   // --- Render Flow ---
 
   if (!user.google) return <LoginStep googleBtnRef={googleBtnRef} />;
+
   if (!user.facebook) return <BindStep user={user} onFBLogin={handleFBLogin} />;
 
   if (isZonesLoading && zones.length === 0) {
