@@ -2,10 +2,8 @@ import { useState } from "react";
 import type { UserProfile, NearbyItem } from "../../types";
 import { Header } from "./Header";
 import { LocationStatus } from "./LocationStatus";
-import { UserInfo } from "./UserInfo";
 import { Search } from "./Search";
 import { StopList } from "./StopList";
-import { Footer } from "./Footer";
 
 interface Props {
   user: UserProfile;
@@ -24,7 +22,6 @@ export function Sidebar({
   nearbyStops,
   activeStop,
   onStopClick,
-  userLocation,
   onGoToMyLocation,
   onLogout,
   isLocationDenied,
@@ -41,28 +38,21 @@ export function Sidebar({
   return (
     <div className="w-full h-1/2 md:h-full md:w-1/3 bg-white shadow-xl flex flex-col z-20 min-h-0 shrink-0">
       {/* --- Header Section --- */}
-      <div className="p-4 bg-blue-600 text-white shadow-md z-10">
-        <Header
-          userLocation={userLocation}
-          onGoToMyLocation={onGoToMyLocation}
-          isLocationDenied={isLocationDenied}
-        />
+      <div className="p-3 bg-blue-600 text-white shadow-md z-10 shrink-0">
+        <Header user={user} onLogout={onLogout} />
 
         <LocationStatus
           isLocationDenied={isLocationDenied}
           locationSource={locationSource}
-        />
-
-        <UserInfo
-          user={user}
-          totalStops={nearbyStops.length}
-          filteredCount={filteredStops.length}
+          onGoToMyLocation={onGoToMyLocation}
         />
 
         <Search
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onClear={() => setSearchQuery("")}
+          totalStops={nearbyStops.length}
+          filteredCount={filteredStops.length}
         />
       </div>
 
@@ -73,9 +63,6 @@ export function Sidebar({
         activeStop={activeStop}
         onStopClick={onStopClick}
       />
-
-      {/* --- Footer Section --- */}
-      <Footer onLogout={onLogout} />
     </div>
   );
 }

@@ -47,10 +47,15 @@ describe("Sidebar Integration", () => {
     );
 
     expect(screen.getByText("附近的都更地點")).toBeInTheDocument(); // Header
-    expect(screen.getByText("Hi,")).toBeInTheDocument(); // UserInfo
+    expect(screen.getByText("Test User")).toBeInTheDocument(); // Header (User Info)
+    expect(screen.getByTitle("登出")).toBeInTheDocument(); // Header (Logout)
+
+    expect(screen.getByText("距離基準：")).toBeInTheDocument(); // LocationStatus
+
     expect(screen.getByPlaceholderText("搜尋地點名稱...")).toBeInTheDocument(); // Search
+    expect(screen.getByText("2筆")).toBeInTheDocument(); // Search (Count Badge)
+
     expect(screen.getByText("🚇 Tucheng Station")).toBeInTheDocument(); // StopList
-    expect(screen.getByText("🚪 登出系統")).toBeInTheDocument(); // Footer
   });
 
   it("filters stop list based on search query", () => {
@@ -71,7 +76,7 @@ describe("Sidebar Integration", () => {
     // Initial state: 2 stops
     expect(screen.getByText("🚇 Tucheng Station")).toBeInTheDocument();
     expect(screen.getByText("🚇 Banqiao Station")).toBeInTheDocument();
-    expect(screen.getByText("共 2 筆")).toBeInTheDocument();
+    expect(screen.getByText("2筆")).toBeInTheDocument();
 
     // Type "Tucheng"
     const input = screen.getByPlaceholderText("搜尋地點名稱...");
@@ -80,6 +85,6 @@ describe("Sidebar Integration", () => {
     // Filtered state: 1 stop
     expect(screen.getByText("🚇 Tucheng Station")).toBeInTheDocument();
     expect(screen.queryByText("🚇 Banqiao Station")).not.toBeInTheDocument();
-    expect(screen.getByText("共 1/2 筆")).toBeInTheDocument();
+    expect(screen.getByText("1/2")).toBeInTheDocument();
   });
 });
