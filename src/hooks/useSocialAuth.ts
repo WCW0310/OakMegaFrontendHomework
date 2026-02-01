@@ -63,11 +63,11 @@ export function useSocialAuth() {
       if (window.google) {
         initGoogle();
       } else {
-        // Edge case: script tag exists but not loaded. 
-        // We can attach onload to existing script if we want to be safe, 
+        // Edge case: script tag exists but not loaded.
+        // We can attach onload to existing script if we want to be safe,
         // but typically if it exists it likely loaded or is loading.
-        existingScript.addEventListener('load', initGoogle);
-        return () => existingScript.removeEventListener('load', initGoogle);
+        existingScript.addEventListener("load", initGoogle);
+        return () => existingScript.removeEventListener("load", initGoogle);
       }
       return;
     }
@@ -103,6 +103,13 @@ export function useSocialAuth() {
       script.async = true;
       script.defer = true;
       script.crossOrigin = "anonymous";
+      script.onerror = () => {
+        console.error(
+          "Facebook SDK failed to load. Likely blocked by browser.",
+        );
+        // We can set a flag here if we want to show a UI warning immediately,
+        // but for now we'll handle it on click.
+      };
       document.body.appendChild(script);
     }
   }, []);
@@ -111,7 +118,10 @@ export function useSocialAuth() {
 
   const handleFBLogin = () => {
     if (!window.FB) {
-      console.warn("Facebook SDK not loaded yet.");
+      alert(
+        "無法載入 Facebook 登入功能。\n\n如果您使用 Edge 瀏覽器或安裝了廣告阻擋器，請嘗試：\n1. 關閉「追蹤防護」或將本站加入白名單。\n2. 暫時關閉廣告阻擋插件。\n3. 改用 Chrome 或 Safari 瀏覽器。",
+      );
+      console.warn("Facebook SDK not loaded yet or blocked.");
       return;
     }
 
