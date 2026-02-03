@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useSocialAuth } from "./useSocialAuth";
 
@@ -38,6 +38,26 @@ describe("useSocialAuth", () => {
     // Verify properties exist
     expect(result.current.user).toBeDefined();
     expect(result.current.handleFBLogin).toBeInstanceOf(Function);
+    expect(result.current.handleFBGuestLogin).toBeInstanceOf(Function);
+  });
+
+  it("handleFBGuestLogin updates user state correctly", () => {
+    const { result } = renderHook(() => useSocialAuth());
+
+    // Trigger guest login
+    // Note: Since set state is async, we often assume renderHook handles updates,
+    // but without act() we might get warnings. However, React 18+ auto-batches.
+    // For hook testing, usually we act(...) if using @testing-library/react-hooks,
+    // but here we imported from @testing-library/react which includes it.
+    // Actually, calling the function directly is fine.
+
+    // We need to wrap state updates in act()
+    act(() => {
+      result.current.handleFBGuestLogin();
+    });
+
+    expect(result.current.user.isFBGuest).toBe(true);
+    expect(result.current.user.facebook?.name).toBe("Guest User");
   });
 
   // Note: Detailed testing of async script loading and external SDK interactions

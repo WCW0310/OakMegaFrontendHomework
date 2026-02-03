@@ -32,6 +32,7 @@ describe("App", () => {
       handleFBLogin: vi.fn(),
       handleLogout: vi.fn(),
       googleBtnRef: { current: null },
+      handleFBGuestLogin: vi.fn(),
     });
 
     render(<App />);
@@ -44,11 +45,12 @@ describe("App", () => {
     >;
     mockUseSocialAuth.mockReturnValue({
       user: {
-        google: { name: "Test", picture: "", email: "test@example.com" },
+        google: { name: "Test", picture: "" },
       },
       handleFBLogin: vi.fn(),
       handleLogout: vi.fn(),
       googleBtnRef: { current: null },
+      handleFBGuestLogin: vi.fn(),
     });
 
     render(<App />);
@@ -61,12 +63,13 @@ describe("App", () => {
     >;
     mockUseSocialAuth.mockReturnValue({
       user: {
-        google: { name: "Test", picture: "", email: "test@example.com" },
-        facebook: { name: "Test", picture: "", id: "123" },
+        google: { name: "Test", picture: "" },
+        facebook: { name: "Test", picture: "" },
       },
       handleFBLogin: vi.fn(),
       handleLogout: vi.fn(),
       googleBtnRef: { current: null },
+      handleFBGuestLogin: vi.fn(),
     });
 
     // Mock successful data fetch to clear loading state
@@ -86,5 +89,27 @@ describe("App", () => {
     // Use findByText to wait for the loading state to resolve
     expect(await screen.findByText("Sidebar")).toBeInTheDocument();
     expect(await screen.findByText("MapView")).toBeInTheDocument();
+    expect(await screen.findByText("MapView")).toBeInTheDocument();
+  });
+
+  it("renders Main Dashboard when user is Guest", async () => {
+    const mockUseSocialAuth = useSocialAuth as MockedFunction<
+      typeof useSocialAuth
+    >;
+    mockUseSocialAuth.mockReturnValue({
+      user: {
+        google: { name: "Test", picture: "" },
+        facebook: { name: "Guest", picture: "" },
+        isFBGuest: true,
+      },
+      handleFBLogin: vi.fn(),
+      handleLogout: vi.fn(),
+      googleBtnRef: { current: null },
+      handleFBGuestLogin: vi.fn(),
+    });
+
+    render(<App />);
+
+    expect(await screen.findByText("Sidebar")).toBeInTheDocument();
   });
 });

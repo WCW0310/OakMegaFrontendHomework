@@ -183,6 +183,22 @@ export function useSocialAuth() {
     );
   };
 
+  const handleFBGuestLogin = () => {
+    setUser((prev) => {
+      const newUser: UserProfile = {
+        ...prev,
+        facebook: {
+          name: "Guest User",
+          picture:
+            "https://ui-avatars.com/api/?name=Guest+User&background=random&size=200",
+        },
+        isFBGuest: true,
+      };
+      localStorage.setItem("user_profile", JSON.stringify(newUser));
+      return newUser;
+    });
+  };
+
   const handleLogout = () => {
     setUser({});
     localStorage.removeItem("user_profile");
@@ -211,5 +227,11 @@ export function useSocialAuth() {
     return () => clearInterval(intervalId);
   }, [user.exp]);
 
-  return { user, handleFBLogin, handleLogout, googleBtnRef };
+  return {
+    user,
+    handleFBLogin,
+    handleLogout,
+    googleBtnRef,
+    handleFBGuestLogin,
+  };
 }

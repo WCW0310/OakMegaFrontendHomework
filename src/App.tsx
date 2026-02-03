@@ -14,8 +14,14 @@ import type { NearbyItem } from "./types";
 fixLeafletIcon();
 
 function App() {
-  const { user, handleFBLogin, handleLogout, googleBtnRef } = useSocialAuth();
-  const isAuthReady = !!(user.google && user.facebook);
+  const {
+    user,
+    handleFBLogin,
+    handleLogout,
+    googleBtnRef,
+    handleFBGuestLogin,
+  } = useSocialAuth();
+  const isAuthReady = !!(user.google && (user.facebook || user.isFBGuest));
 
   // --- Location State ---
   const [userLocation, setUserLocation] = useState<{
@@ -134,7 +140,15 @@ function App() {
 
   if (!user.google) return <LoginStep googleBtnRef={googleBtnRef} />;
 
-  if (!user.facebook) return <BindStep user={user} onFBLogin={handleFBLogin} />;
+  if (!user.facebook && !user.isFBGuest) {
+    return (
+      <BindStep
+        user={user}
+        onFBLogin={handleFBLogin}
+        onFBGuestLogin={handleFBGuestLogin}
+      />
+    );
+  }
 
   if (isZonesLoading && zones.length === 0) {
     return <LoadingScreen message="正在載入地圖圖資..." />;

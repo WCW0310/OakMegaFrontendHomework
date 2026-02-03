@@ -3,9 +3,10 @@ import type { UserProfile } from "../types";
 interface Props {
   user: UserProfile;
   onFBLogin: () => void;
+  onFBGuestLogin?: () => void;
 }
 
-export function BindStep({ user, onFBLogin }: Props) {
+export function BindStep({ user, onFBLogin, onFBGuestLogin }: Props) {
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-slate-100 p-4">
       <h1 className="mb-4 text-2xl font-bold text-gray-800">
@@ -26,6 +27,15 @@ export function BindStep({ user, onFBLogin }: Props) {
         >
           綁定 Facebook 帳號
         </button>
+
+        {onFBGuestLogin && (
+          <button
+            onClick={onFBGuestLogin}
+            className="mt-3 w-full text-center text-gray-500 text-sm hover:underline cursor-pointer"
+          >
+            跳過登入 (Guest Login)
+          </button>
+        )}
       </div>
     </div>
   );

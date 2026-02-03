@@ -9,6 +9,7 @@ export interface UserProfile {
   google?: { name: string; picture: string };
   facebook?: { name: string; picture: string };
   exp?: number;
+  isFBGuest?: boolean; // bypass fb login
 }
 
 // polygonsService
