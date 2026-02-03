@@ -1,49 +1,39 @@
 import { useState, useEffect } from "react";
 import { useSocialAuth } from "./hooks/useSocialAuth";
-import { getPolygons } from "./services/polygonsService";
-import { getNearbyLocations } from "./services/nearbyLocationsService";
+import { useRenewalZones } from "./hooks/useRenewalZones";
+import { useNearbyLocations } from "./hooks/useNearbyLocations";
 import { LoginStep } from "./components/LoginStep";
 import { BindStep } from "./components/BindStep";
 import { Sidebar } from "./components/sidebar";
 import { MapView } from "./components/map";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { fixLeafletIcon } from "./utils/leafletSetup";
-import type { RenewalZone, NearbyItem } from "./types";
+import type { NearbyItem } from "./types";
 
 // Fix Leaflet icons
 fixLeafletIcon();
 
-// Default fallback location (Tucheng MRT)
-const DEFAULT_LOCATION = {
-  lat: 24.9722,
-  lng: 121.4442,
-};
-
 function App() {
   const { user, handleFBLogin, handleLogout, googleBtnRef } = useSocialAuth();
+  const isAuthReady = !!(user.google && user.facebook);
 
-  // --- State Management ---
-
-  // Data State
-  const [zones, setZones] = useState<RenewalZone[]>([]);
-  const [nearbyStops, setNearbyStops] = useState<NearbyItem[]>([]);
-  const [isZonesLoading, setIsZonesLoading] = useState(false);
-
-  // Location State
+  // --- Location State ---
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
   const [isLocationDenied, setIsLocationDenied] = useState(false);
 
-  // UI State
+  // --- Data Fetching Hooks ---
+  const { zones, isLoading: isZonesLoading } = useRenewalZones(isAuthReady);
+  const { nearbyStops } = useNearbyLocations(isAuthReady, userLocation);
+
+  // --- UI State ---
   const [activeStop, setActiveStop] = useState<NearbyItem | null>(null);
   const [showUserLocationPopup, setShowUserLocationPopup] = useState(false);
   const [popupRefresh, setPopupRefresh] = useState(0);
 
-  // Derived State: Determine active location source for UI feedback
   const locationSource = userLocation ? "user" : "default";
-  const isAuthReady = !!(user.google && user.facebook);
 
   // --- Side Effects ---
 
@@ -60,25 +50,7 @@ function App() {
     return () => window.removeEventListener("resize", setVh);
   }, []);
 
-  // 2. Fetch Renewal Zones (Static Data)
-  useEffect(() => {
-    if (!isAuthReady) return;
-
-    const fetchZones = async () => {
-      try {
-        setIsZonesLoading(true);
-        const data = await getPolygons();
-        setZones(data);
-      } catch (error) {
-        console.error("Failed to fetch renewal zones:", error);
-      } finally {
-        setIsZonesLoading(false);
-      }
-    };
-    fetchZones();
-  }, [isAuthReady]);
-
-  // 3. Request User Geolocation (Background with Robust Retry Logic)
+  // 2. Request User Geolocation (Background with Robust Retry Logic)
   useEffect(() => {
     if (!isAuthReady || !("geolocation" in navigator)) return;
 
@@ -117,44 +89,6 @@ function App() {
       timeout: 5000,
     });
   }, [isAuthReady]);
-
-  // 4. Fetch Nearby Stops (Race Condition Protected)
-  // Updates whenever the user location changes or falls back to default.
-  useEffect(() => {
-    if (!isAuthReady) return;
-
-    // ✅ Race Condition Fix: Track if this effect is still active
-    let ignore = false;
-
-    // Optional: Clear list immediately to avoid confusion during switch
-    setNearbyStops([]);
-
-    const targetLat = userLocation ? userLocation.lat : DEFAULT_LOCATION.lat;
-    const targetLng = userLocation ? userLocation.lng : DEFAULT_LOCATION.lng;
-
-    const fetchNearby = async () => {
-      try {
-        const data = await getNearbyLocations(targetLng, targetLat);
-
-        // ✅ Only update state if this effect hasn't been cleaned up
-        if (!ignore) {
-          setNearbyStops(data);
-          console.log(
-            `Stops updated for: ${userLocation ? "User" : "Default"}`,
-          );
-        }
-      } catch (error) {
-        if (!ignore) console.error("Failed to fetch nearby stops:", error);
-      }
-    };
-
-    fetchNearby();
-
-    // ✅ Cleanup function: Mark this run as ignored when dependencies change
-    return () => {
-      ignore = true;
-    };
-  }, [isAuthReady, userLocation]);
 
   // --- Event Handlers ---
 

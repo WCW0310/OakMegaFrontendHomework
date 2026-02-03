@@ -1,6 +1,6 @@
 import type { NearbyRequest, NearbyResponse, NearbyItem } from "../types";
+import { fetchClient } from "./apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_ENDPOINT = "/api/v1/server/xinbei/calc-distance";
 
 /**
@@ -14,7 +14,7 @@ export const getNearbyLocations = async (
   try {
     const payload: NearbyRequest = { lng, lat };
 
-    const response = await fetch(`${BASE_URL}${API_ENDPOINT}`, {
+    const data = await fetchClient<NearbyResponse>(API_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,11 +22,6 @@ export const getNearbyLocations = async (
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-
-    const data: NearbyResponse = await response.json();
     return data.result || [];
   } catch (error) {
     // Gracefully return empty array to prevent UI crash, but log for debugging

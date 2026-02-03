@@ -1,11 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getPolygons } from "./polygonsService";
+import { fetchClient } from "./apiClient";
+
+vi.mock("./apiClient", () => ({
+  fetchClient: vi.fn(),
+}));
 
 describe("polygonsService", () => {
-  const fetchMock = vi.fn();
-
   beforeEach(() => {
-    vi.stubGlobal("fetch", fetchMock);
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -22,14 +25,11 @@ describe("polygonsService", () => {
       },
     };
 
-    fetchMock.mockResolvedValue({
-      ok: true,
-      json: async () => mockResponse,
-    });
+    vi.mocked(fetchClient).mockResolvedValue(mockResponse);
 
     const result = await getPolygons();
 
-    expect(fetchMock).toHaveBeenCalled();
+    expect(fetchClient).toHaveBeenCalled();
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
       id: 0,
@@ -42,26 +42,13 @@ describe("polygonsService", () => {
   });
 
   it("handles API errors gracefully", async () => {
-    fetchMock.mockResolvedValue({
-      ok: false,
-      status: 500,
-      statusText: "Server Error",
-    });
+    vi.mocked(fetchClient).mockRejectedValue(new Error("API Error"));
 
     // Spy on console.error to suppress output during test
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = await getPolygons();
 
-    expect(result).toEqual([]);
-    expect(consoleSpy).toHaveBeenCalled();
-  });
-
-  it("handles network errors", async () => {
-    fetchMock.mockRejectedValue(new Error("Network Error"));
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-    const result = await getPolygons();
     expect(result).toEqual([]);
     expect(consoleSpy).toHaveBeenCalled();
   });

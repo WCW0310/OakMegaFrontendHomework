@@ -1,6 +1,6 @@
 import type { GeoJsonResponse, RenewalZone } from "../types";
+import { fetchClient } from "./apiClient";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_ENDPOINT = "/api/v1/server/xinbei/geolocation-json";
 
 /**
@@ -12,13 +12,10 @@ export const getPolygons = async (
 ): Promise<RenewalZone[]> => {
   try {
     const params = new URLSearchParams({ directory });
-    const response = await fetch(`${BASE_URL}${API_ENDPOINT}?${params}`);
+    const data = await fetchClient<GeoJsonResponse>(
+      `${API_ENDPOINT}?${params}`,
+    );
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-
-    const data: GeoJsonResponse = await response.json();
     const features = data.result.features;
 
     // Map GeoJSON features to internal model

@@ -1,11 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getNearbyLocations } from "./nearbyLocationsService";
+import { fetchClient } from "./apiClient";
+
+vi.mock("./apiClient", () => ({
+  fetchClient: vi.fn(),
+}));
 
 describe("nearbyLocationsService", () => {
-  const fetchMock = vi.fn();
-
   beforeEach(() => {
-    vi.stubGlobal("fetch", fetchMock);
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -18,14 +21,11 @@ describe("nearbyLocationsService", () => {
       { id: 2, name: "Stop B" },
     ];
 
-    fetchMock.mockResolvedValue({
-      ok: true,
-      json: async () => ({ result: mockData }),
-    });
+    vi.mocked(fetchClient).mockResolvedValue({ result: mockData });
 
     const result = await getNearbyLocations(121, 25);
 
-    expect(fetchMock).toHaveBeenCalledWith(
+    expect(fetchClient).toHaveBeenCalledWith(
       expect.stringContaining("/api/v1/server/xinbei/calc-distance"),
       expect.objectContaining({
         method: "POST",
@@ -36,10 +36,7 @@ describe("nearbyLocationsService", () => {
   });
 
   it("handles API errors gracefully", async () => {
-    fetchMock.mockResolvedValue({
-      ok: false,
-      status: 400,
-    });
+    vi.mocked(fetchClient).mockRejectedValue(new Error("API Error"));
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = await getNearbyLocations(121, 25);
