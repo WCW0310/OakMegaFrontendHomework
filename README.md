@@ -13,6 +13,7 @@ A React-based web application for visualizing urban renewal locations in New Tai
 - **Robust Authentication**:
   - Native integration with Google Identity Services and Facebook SDK.
   - **Session Management**: Automatic expiration handling (auto-logout) based on token validity.
+  - **Guest Access**: Guest Login option to explore the map without binding the FB account.
   - Secure local storage of user profiles.
 - **Interactive Map Visualization**:
   - **Renewal Zones**: Polygon rendering of urban renewal areas.
