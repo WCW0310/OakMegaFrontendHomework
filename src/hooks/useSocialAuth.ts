@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { UserProfile } from "../types";
 import { parseJwt } from "../utils/jwt";
+import { getFbExpiration } from "../utils/url";
 
 // Configuration
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
@@ -12,7 +13,19 @@ export function useSocialAuth() {
   const [user, setUser] = useState<UserProfile>(() => {
     try {
       const savedUser = localStorage.getItem("user_profile");
-      return savedUser ? JSON.parse(savedUser) : {};
+      if (!savedUser) return {};
+
+      const parsedUser = JSON.parse(savedUser);
+
+      // Security Check: If the session is already expired during initialization,
+      // invalidate it immediately to prevent UI flashing (e.g., avatar appearing briefly).
+      if (parsedUser.exp && Date.now() >= parsedUser.exp * 1000) {
+        console.warn("Storage session expired. Resetting.");
+        localStorage.removeItem("user_profile");
+        return {};
+      }
+
+      return parsedUser;
     } catch (error) {
       console.error("Failed to parse user profile from storage", error);
       return {};
@@ -31,13 +44,14 @@ export function useSocialAuth() {
         callback: (response) => {
           const payload = parseJwt(response.credential);
           setUser((prev) => {
-            const newUser = {
+            const newUser: UserProfile = {
               ...prev,
               google: {
                 name: payload.name,
                 picture: payload.picture,
-                email: payload.email,
               },
+              // Store expiration time (exp is in seconds)
+              exp: payload.exp,
             };
             localStorage.setItem("user_profile", JSON.stringify(newUser));
             return newUser;
@@ -131,13 +145,31 @@ export function useSocialAuth() {
           // Fetch user details upon successful authorization
           window.FB.api("/me", { fields: "name, picture" }, (userInfo) => {
             setUser((prev) => {
-              const newUser = {
+              // Get FB expiration from picture URL
+              const fbExp = getFbExpiration(userInfo.picture.data.url);
+
+              // Compare with existing expiration (if any) and take the smaller one
+              // Logic:
+              // 1. If both exist, take min
+              // 2. If only one exists, take it
+              // 3. If neither, undefined (though google should usually have it)
+
+              let finalExp = prev.exp;
+              if (fbExp) {
+                if (finalExp) {
+                  finalExp = Math.min(finalExp, fbExp);
+                } else {
+                  finalExp = fbExp;
+                }
+              }
+
+              const newUser: UserProfile = {
                 ...prev,
                 facebook: {
                   name: userInfo.name,
                   picture: userInfo.picture.data.url,
-                  id: userInfo.id,
                 },
+                exp: finalExp,
               };
               localStorage.setItem("user_profile", JSON.stringify(newUser));
               return newUser;
@@ -157,6 +189,27 @@ export function useSocialAuth() {
     // Force reload to clear any SDK states/caches
     window.location.reload();
   };
+
+  // 5. Auto Logout Check
+  useEffect(() => {
+    if (!user.exp) return;
+
+    const checkExpiration = () => {
+      // exp is in seconds, Date.now() is in ms
+      if (Date.now() >= user.exp! * 1000) {
+        console.warn("Session expired. Logging out...");
+        handleLogout();
+      }
+    };
+
+    // Check immediately on mount/update
+    checkExpiration();
+
+    // Check periodically (e.g., every minute) just in case
+    const intervalId = setInterval(checkExpiration, 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [user.exp]);
 
   return { user, handleFBLogin, handleLogout, googleBtnRef };
 }

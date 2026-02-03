@@ -6,8 +6,9 @@ export interface RenewalZone {
 }
 
 export interface UserProfile {
-  google?: { name: string; picture: string; email: string };
-  facebook?: { name: string; picture: string; id: string };
+  google?: { name: string; picture: string };
+  facebook?: { name: string; picture: string };
+  exp?: number;
 }
 
 // polygonsService
